@@ -45,14 +45,15 @@ Function Set-TargetResource {
    }
    $environments = (((Get-Content -Path $($d.wD, $d.mR, "rsEnvironments.ps1" -join '\')) -match "EnvironmentName") | % {($_.split("=")[1] -replace '"', "").trim()})
    foreach($environment in $environments) {
-      if(Test-Path -Path $($environment, ".ps1" -join '')) {
+      if(Test-Path -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\')) {
          if(((Get-FileHash -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\')).Hash) -ne (Get-Content -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\'))) {
             $environmentServers = $servers | ? {$_.environmentName -eq $environment}
             foreach($environmentServer in $environmentServers) {
+               Remove-Item -Path $(("C:\Program Files\WindowsPowerShell\DscService\Configuration", $($environmentServer.guid, "*" -join '') -join '\')) -Force
                powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid)
             }
          }
-         Set-Content -Path $($d.wD, $d.mR, $($environment, ".hash" -join ''), -join '\') -Value (Get-FileHash -Path $($d.wD, $d.mR, $($environment, ".ps1" -join ''), -join '\')).hash
+         Set-Content -Path $($d.wD, $d.mR, $($environment, ".hash" -join '') -join '\') -Value (Get-FileHash -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\')).hash
       }
    }
 }
