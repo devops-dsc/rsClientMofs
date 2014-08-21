@@ -36,7 +36,7 @@ Function Set-TargetResource {
       [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$Ensure
    )
    . "C:\cloud-automation\secrets.ps1"
-   Write-EventLog -LogName DevOps -Source RS_rsCloudServersOpenStack -EntryType Information -EventId 1000 -Message $($MyInvocation.ScriptName)
+   Write-EventLog -LogName DevOps -Source RS_rsCloudServersOpenStack -EntryType Information -EventId 1000 -Message "invocation: $($MyInvocation.ScriptName)"
    $catalog = (Invoke-RestMethod -Uri $("https://identity.api.rackspacecloud.com/v2.0/tokens") -Method POST -Body $(@{"auth" = @{"RAX-KSKEY:apiKeyCredentials" = @{"username" = $($d.cU); "apiKey" = $($d.cAPI)}}} | convertTo-Json) -ContentType application/json)
    $AuthToken = @{"X-Auth-Token"=($catalog.access.token.id)}
    $environmentGuids = (((Get-Content -Path $($d.wD, $d.mR, "rsEnvironments.ps1" -join '\')) -match "environmentGuid") | % {($_.split("=")[1] -replace '"', "").trim()})
