@@ -19,7 +19,7 @@ Function Test-TargetResource {
       if(!(Test-Path -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\'))) {
          return $false
       }
-      if(!(Test-Path -Path $($d.wD), $($environment, ".hash" -join '') -join '\')) {
+      if(!(Test-Path -Path $($d.wD), $($environment, ".hash" -join '')) -join '\') {
          return $false
       }
       if( ((Get-FileHash -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\')).Hash) -ne (Get-Content -Path $($d.wD, $($environment, ".hash" -join '') -join '\') )) {
