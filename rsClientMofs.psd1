@@ -3,7 +3,7 @@
 ModuleVersion = '1.0'
 
 # ID used to uniquely identify this module
-GUID = '652b0721-2716-4df2-b92d-2505fc1a4c21'
+GUID = '6ab8f982-d1c0-4304-bd1c-6716a81ab1e0'
 
 # Author of this module
 Author = 'Rackspace'
