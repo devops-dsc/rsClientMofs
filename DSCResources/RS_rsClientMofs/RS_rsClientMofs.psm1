@@ -14,6 +14,7 @@ Function Test-TargetResource {
       [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$Ensure
    )
    . "C:\cloud-automation\secrets.ps1"
+    Write-EventLog -LogName DevOps -Source RS_rsCloudServersOpenStack -EntryType Information -EventId 1000 -Message "invocation: $($MyInvocation.ScriptName)"
    $environments = (((Get-Content -Path $($d.wD, $d.mR, "rsEnvironments.ps1" -join '\')) -match "EnvironmentName") | % {($_.split("=")[1] -replace '"', "").trim()})
    foreach($environment in $environments) {
       if(!(Test-Path -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\'))) {
