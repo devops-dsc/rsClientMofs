@@ -21,7 +21,7 @@ Function Test-TargetResource {
    foreach($environmentGuid in $environmentGuids) {
       $servers += (((Invoke-RestMethod -Uri $("https://prefs.api.rackspacecloud.com/v1/WinDevOps", $environmentGuid -join '/') -Method GET -Headers $AuthToken -ContentType application/json).servers).servers)
    }
-   #((Get-Item -Path "C:\Program Files\WindowsPowerShell\DscService\Configuration\*").BaseName -notmatch "mof") -notmatch $servers.guid | % ($_) {Remove-Item -Path $(((("C:\Program Files\WindowsPowerShell\DscService\Configuration", $_) -join '\')), "*" -join '') }
+   ((Get-Item -Path "C:\Program Files\WindowsPowerShell\DscService\Configuration\*").BaseName -notmatch "mof") -notmatch $servers.guid | % ($_) {Remove-Item -Path $(((("C:\Program Files\WindowsPowerShell\DscService\Configuration", $_) -join '\')), "*" -join '') }
    $environments = (((Get-Content -Path $($d.wD, $d.mR, "rsEnvironments.ps1" -join '\')) -match "EnvironmentName") | % {($_.split("=")[1] -replace '"', "").trim()})
    foreach($environment in $environments) {
       if(!(Test-Path -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\'))) {
@@ -102,6 +102,14 @@ Function Set-TargetResource {
             $missingConfigs += $($server.guid)
          }
       }  
+      
    }
-   
+   $missingConfigs = $missingConfigs | sort -Unique
+   if($missingConfigs) {
+      foreach($missingConfig in $missingConfigs) {
+         $missingEnvironment = ($servers | ? {$_.guid -eq $missingConfig}).environmentName
+         Remove-Item $("C:\Program Files\WindowsPowerShell\DscService\Configuration", $($missingConfig, "*" -join '') -join '\') -Force
+         powershell.exe $($d.wD, $d.mR, $(($servers | ? {$_.guid -eq $missingConfig}).environmentName, ".ps1" -join '') -join '\') -Node $(($servers | ? {$_.guid -eq $missingConfig}).serverName), -ObjectGuid $(($servers | ? {$_.guid -eq $missingConfig}).guid), -MonitoringID $(($servers | ? {$_.guid -eq $missingConfig}).guid), -MonitoringToken $(($agent_tokens | ? {$_.label -eq $(($servers | ? {$_.guid -eq $missingConfig}).guid)}).id)
+      }
+   }
 }
