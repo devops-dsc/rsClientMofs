@@ -3,5 +3,5 @@ class RS_rsClientMofs : OMI_BaseResource
 {
     [key] string Name;
     [write,ValueMap{"Present", "Absent"},Values{"Present", "Absent"}] string Ensure;
-    [write] boolean Logging
+    [write] boolean Logging;
 };
