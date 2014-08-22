@@ -43,6 +43,9 @@ Function Set-TargetResource {
    $tokenuri = ($monitoruri, "agent_tokens" -join '/')
    $environmentGuids = (((Get-Content -Path $($d.wD, $d.mR, "rsEnvironments.ps1" -join '\')) -match "environmentGuid") | % {($_.split("=")[1] -replace '"', "").trim()})
    $servers = @()
+   foreach($environmentGuid in $environmentGuids) {
+      $servers += (((Invoke-RestMethod -Uri $("https://prefs.api.rackspacecloud.com/v1/WinDevOps", $environmentGuid -join '/') -Method GET -Headers $AuthToken -ContentType application/json).servers).servers)
+   }
    $agent_tokens = (Invoke-RestMethod -Uri $tokenuri -Method GET -Headers $AuthToken).values
    foreach($server in $servers) {
       if($server.serverName) {
@@ -60,9 +63,6 @@ Function Set-TargetResource {
          }
       }
    }
-   foreach($environmentGuid in $environmentGuids) {
-      $servers += (((Invoke-RestMethod -Uri $("https://prefs.api.rackspacecloud.com/v1/WinDevOps", $environmentGuid -join '/') -Method GET -Headers $AuthToken -ContentType application/json).servers).servers)
-   }
    $agent_tokens = (Invoke-RestMethod -Uri $tokenuri -Method GET -Headers $AuthToken).values
    #((Get-Item -Path "C:\Program Files\WindowsPowerShell\DscService\Configuration\*").BaseName -notmatch "mof") -notmatch $servers.guid | % ($_) {Remove-Item -Path $(((("C:\Program Files\WindowsPowerShell\DscService\Configuration", $_) -join '\')), "*" -join '') }
    $environments = (((Get-Content -Path $($d.wD, $d.mR, "rsEnvironments.ps1" -join '\')) -match "EnvironmentName") | % {($_.split("=")[1] -replace '"', "").trim()})
@@ -78,5 +78,5 @@ Function Set-TargetResource {
          }
       }
    }
-
+   
 }
