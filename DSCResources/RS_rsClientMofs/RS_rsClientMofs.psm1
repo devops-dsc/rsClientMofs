@@ -16,6 +16,7 @@ Function Test-TargetResource {
       [bool]$Logging
    )
    $logSource = $PSCmdlet.MyInvocation.MyCommand.ModuleName
+   New-EventLog -LogName "DevOps" -Source $logSource
    . "C:\cloud-automation\secrets.ps1"
    try{
       $catalog = (Invoke-RestMethod -Uri $("https://identity.api.rackspacecloud.com/v2.0/tokens") -Method POST -Body $(@{"auth" = @{"RAX-KSKEY:apiKeyCredentials" = @{"username" = $($d.cU); "apiKey" = $($d.cAPI)}}} | convertTo-Json) -ContentType application/json)
@@ -78,6 +79,7 @@ Function Set-TargetResource {
       [bool]$Logging
    )
    . "C:\cloud-automation\secrets.ps1"
+   $logSource = $PSCmdlet.MyInvocation.MyCommand.ModuleName
    try {
       $catalog = (Invoke-RestMethod -Uri $("https://identity.api.rackspacecloud.com/v2.0/tokens") -Method POST -Body $(@{"auth" = @{"RAX-KSKEY:apiKeyCredentials" = @{"username" = $($d.cU); "apiKey" = $($d.cAPI)}}} | convertTo-Json) -ContentType application/json)
    }
