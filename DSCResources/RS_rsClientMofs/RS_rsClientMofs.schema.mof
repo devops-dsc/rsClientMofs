@@ -1,4 +1,4 @@
-﻿[ClassVersion("1.0.0"), FriendlyName("rsClientMofs")]
+﻿[ClassVersion("1.1.0"), FriendlyName("rsClientMofs")]
 class RS_rsClientMofs : OMI_BaseResource
 {
     [key] string Name;
