@@ -79,29 +79,29 @@ Function Set-TargetResource {
       }
    }
    $agent_tokens = (Invoke-RestMethod -Uri $tokenuri -Method GET -Headers $AuthToken).values
-   $missingConfig = 0
-   foreach($server in $servers) {
-      if($($server.serverName)) {
-         if(!(Test-Path -Path $("C:\Program Files\WindowsPowerShell\DscService\Configuration", $($server.guid, ".mof" -join '') -join '\'))) {
-            $missingConfig += 1
-         }
-         if(!(Test-Path -Path $("C:\Program Files\WindowsPowerShell\DscService\Configuration", $($server.guid, ".mof.checksum" -join '') -join '\'))) {
-            $missingConfig += 1
-         }
-      }  
-   }
    $environments = (((Get-Content -Path $($d.wD, $d.mR, "rsEnvironments.ps1" -join '\')) -match "EnvironmentName") | % {($_.split("=")[1] -replace '"', "").trim()})
    foreach($environment in $environments) {
       if(Test-Path -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\')) {
-         if(((Get-FileHash -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\')).Hash) -ne (Get-Content -Path $($d.wD, $($environment, ".hash" -join '') -join '\')) -or $missingConfig -gt 0) {
+         if(((Get-FileHash -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\')).Hash) -ne (Get-Content -Path $($d.wD, $($environment, ".hash" -join '') -join '\'))) {
             $environmentServers = $servers | ? {$_.environmentName -eq $environment}
             foreach($environmentServer in $environmentServers) {
                Remove-Item -Path $(("C:\Program Files\WindowsPowerShell\DscService\Configuration", $($environmentServer.guid, "*" -join '') -join '\')) -Force
-               powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($server.guid), -MonitoringToken $(($agent_tokens | ? {$_.label -eq $($server.guid)}).id)
+               powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken $($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id
             }
             Set-Content -Path $($d.wD, $($environment, ".hash" -join '') -join '\') -Value (Get-FileHash -Path $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\')).hash
          }
       }
+   }
+   $missingConfigs = @()
+   foreach($server in $servers) {
+      if($($server.serverName)) {
+         if(!(Test-Path -Path $("C:\Program Files\WindowsPowerShell\DscService\Configuration", $($server.guid, ".mof" -join '') -join '\'))) {
+            $missingConfigs += $($server.guid)
+         }
+         if(!(Test-Path -Path $("C:\Program Files\WindowsPowerShell\DscService\Configuration", $($server.guid, ".mof.checksum" -join '') -join '\'))) {
+            $missingConfigs += $($server.guid)
+         }
+      }  
    }
    
 }
