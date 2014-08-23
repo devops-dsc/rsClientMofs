@@ -77,33 +77,34 @@ Function Test-TargetResource {
    return $true
 }
 Function Set-TargetResource {
-param (
-   [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$Name,
-   [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$Ensure,
-   [bool]$Logging
-)
+   param (
+      [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$Name,
+      [Parameter(Mandatory = $true)][ValidateNotNullOrEmpty()][string]$Ensure,
+      [bool]$Logging
+   )
    . "C:\cloud-automation\secrets.ps1"
    $logSource = $PSCmdlet.MyInvocation.MyCommand.ModuleName
-try {
-   $catalog = (Invoke-RestMethod -Uri $("https://identity.api.rackspacecloud.com/v2.0/tokens") -Method POST -Body $(@{"auth" = @{"RAX-KSKEY:apiKeyCredentials" = @{"username" = $($d.cU); "apiKey" = $($d.cAPI)}}} | convertTo-Json) -ContentType application/json)
-}
-catch {
-   if($Logging) {
-      Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to retreive service catalog `n $($_.Execption.Message)"
+   try {
+      $catalog = (Invoke-RestMethod -Uri $("https://identity.api.rackspacecloud.com/v2.0/tokens") -Method POST -Body $(@{"auth" = @{"RAX-KSKEY:apiKeyCredentials" = @{"username" = $($d.cU); "apiKey" = $($d.cAPI)}}} | convertTo-Json) -ContentType application/json)
    }
-}
+   catch {
+      if($Logging) {
+         Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to retreive service catalog `n $($_.Execption.Message)"
+      }
+   }
    $AuthToken = @{"X-Auth-Token"=($catalog.access.token.id)}
    $monitoruri = (($catalog.access.serviceCatalog | Where-Object Name -Match "cloudMonitoring").endpoints).publicURL
    $tokenuri = ($monitoruri, "agent_tokens" -join '/')
    $environmentGuids = (((Get-Content -Path $($d.wD, $d.mR, "rsEnvironments.ps1" -join '\')) -match "environmentGuid") | % {($_.split("=")[1] -replace '"', "").trim()})
    $servers = @()
-foreach($environmentGuid in $environmentGuids) {
-   try {
-      $servers += (((Invoke-RestMethod -Uri $("https://prefs.api.rackspacecloud.com/v1/WinDevOps", $environmentGuid -join '/') -Method GET -Headers $AuthToken -ContentType application/json).servers).servers)
-   }
-   catch {
-      if($Logging) {
-         Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to retrieve server object from Servermill `n $($_.Exception.Message)"
+   foreach($environmentGuid in $environmentGuids) {
+      try {
+         $servers += (((Invoke-RestMethod -Uri $("https://prefs.api.rackspacecloud.com/v1/WinDevOps", $environmentGuid -join '/') -Method GET -Headers $AuthToken -ContentType application/json).servers).servers)
+      }
+      catch {
+         if($Logging) {
+            Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to retrieve server object from Servermill `n $($_.Exception.Message)"
+         }
       }
    }
    try {
@@ -220,7 +221,6 @@ foreach($environmentGuid in $environmentGuids) {
             $missingConfigs += $($server.guid)
          }
       }  
-      
    }
    $missingConfigs = $missingConfigs | sort -Unique
    if($missingConfigs) {
