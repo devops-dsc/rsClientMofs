@@ -175,12 +175,14 @@ Function Set-TargetResource {
                         Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to remove file `n $($_.Exception.Message)"
                      }
                   }
-                  try {
-                     powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken $($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id
-                  }
-                  catch {
-                     if($Logging) {
-                        Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to create configuration Mof `n $($_.Exception.Message)"
+                  if($($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id) {
+                     try {
+                        powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken $($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id
+                     }
+                     catch {
+                        if($Logging) {
+                           Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to create configuration Mof `n $($_.Exception.Message)"
+                        }
                      }
                   }
                }
@@ -199,12 +201,14 @@ Function Set-TargetResource {
                   Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to remove file `n $($_.Exception.Message)"
                }
             }
-            try {
-               powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken $($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id
-            }
-            catch {
-               if($Logging) {
-                  Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to create configuration Mof `n $($_.Exception.Message)"
+            if($($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id) {
+               try {
+                  powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken $($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id
+               }
+               catch {
+                  if($Logging) {
+                     Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to create configuration Mof `n $($_.Exception.Message)"
+                  }
                }
             }
          }
@@ -234,12 +238,14 @@ Function Set-TargetResource {
                Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to remove file `n $($_.Exception.Message)"
             }
          }
-         try {
-            powershell.exe $($d.wD, $d.mR, $(($servers | ? {$_.guid -eq $missingConfig}).environmentName, ".ps1" -join '') -join '\') -Node $(($servers | ? {$_.guid -eq $missingConfig}).serverName), -ObjectGuid $(($servers | ? {$_.guid -eq $missingConfig}).guid), -MonitoringID $(($servers | ? {$_.guid -eq $missingConfig}).guid), -MonitoringToken $(($agent_tokens | ? {$_.label -eq $(($servers | ? {$_.guid -eq $missingConfig}).guid)}).id)
-         }
-         catch {
-            if($Logging) {
-               Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to create configuration Mof `n $($_.Exception.Message)"
+         if($($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id) {
+            try {
+               powershell.exe $($d.wD, $d.mR, $(($servers | ? {$_.guid -eq $missingConfig}).environmentName, ".ps1" -join '') -join '\') -Node $(($servers | ? {$_.guid -eq $missingConfig}).serverName), -ObjectGuid $(($servers | ? {$_.guid -eq $missingConfig}).guid), -MonitoringID $(($servers | ? {$_.guid -eq $missingConfig}).guid), -MonitoringToken $(($agent_tokens | ? {$_.label -eq $(($servers | ? {$_.guid -eq $missingConfig}).guid)}).id)
+            }
+            catch {
+               if($Logging) {
+                  Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to create configuration Mof `n $($_.Exception.Message)"
+               }
             }
          }
       }
