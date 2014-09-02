@@ -187,7 +187,7 @@ Function Set-TargetResource {
                   }
                   else {
                      try {
-                        powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid)
+                        powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken "Blank Token"
                      }
                      catch {
                         if($Logging) {
@@ -223,7 +223,7 @@ Function Set-TargetResource {
             }
             else {
                try {
-                  powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid)
+                  powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken "Blank Token"
                }
                catch {
                   if($Logging) {
@@ -270,7 +270,7 @@ Function Set-TargetResource {
          }
          else {
             try {
-               powershell.exe $($d.wD, $d.mR, $(($servers | ? {$_.guid -eq $missingConfig}).environmentName, ".ps1" -join '') -join '\') -Node $(($servers | ? {$_.guid -eq $missingConfig}).serverName), -ObjectGuid $(($servers | ? {$_.guid -eq $missingConfig}).guid), -MonitoringID $(($servers | ? {$_.guid -eq $missingConfig}).guid)
+               powershell.exe $($d.wD, $d.mR, $(($servers | ? {$_.guid -eq $missingConfig}).environmentName, ".ps1" -join '') -join '\') -Node $(($servers | ? {$_.guid -eq $missingConfig}).serverName), -ObjectGuid $(($servers | ? {$_.guid -eq $missingConfig}).guid), -MonitoringID $(($servers | ? {$_.guid -eq $missingConfig}).guid), -MonitoringToken "BlankToken"
             }
             catch {
                if($Logging) {
