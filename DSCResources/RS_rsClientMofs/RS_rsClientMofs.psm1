@@ -176,7 +176,14 @@ Function Set-TargetResource {
                      }
                   }
                   try {
-                     powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken $($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id
+                     if(($($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id) -eq $null) {
+                        $body = @{'label' = $($environmentServer.guid);} | ConvertTo-Json
+                        $agentToken = ((Invoke-WebRequest -UseBasicParsing -Uri $tokenuri -Method POST -Headers $AuthToken -Body $body -ContentType application/json).Headers).'X-Object-ID'
+                     }
+                     else {
+                        $agentToken = $($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id
+                     }
+                     powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken $agentToken
                   }
                   catch {
                      if($Logging) {
@@ -200,7 +207,14 @@ Function Set-TargetResource {
                }
             }
             try {
-               powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken $($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id
+               if(($($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id) -eq $null) {
+                  $body = @{'label' = $($environmentServer.guid);} | ConvertTo-Json
+                  $agentToken = ((Invoke-WebRequest -UseBasicParsing -Uri $tokenuri -Method POST -Headers $AuthToken -Body $body -ContentType application/json).Headers).'X-Object-ID'
+               }
+               else {
+                  $agentToken = $($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id
+               }
+               powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername) -ObjectGuid $($environmentServer.guid) -MonitoringID $($environmentServer.guid) -MonitoringToken $agentToken
             }
             catch {
                if($Logging) {
@@ -235,7 +249,14 @@ Function Set-TargetResource {
             }
          }
          try {
-            powershell.exe $($d.wD, $d.mR, $(($servers | ? {$_.guid -eq $missingConfig}).environmentName, ".ps1" -join '') -join '\') -Node $(($servers | ? {$_.guid -eq $missingConfig}).serverName), -ObjectGuid $(($servers | ? {$_.guid -eq $missingConfig}).guid), -MonitoringID $(($servers | ? {$_.guid -eq $missingConfig}).guid), -MonitoringToken $(($agent_tokens | ? {$_.label -eq $(($servers | ? {$_.guid -eq $missingConfig}).guid)}).id)
+            if(($($agent_tokens | ? {$_.label -eq $($missingConfig.guid)}).id) -eq $null) {
+               $body = @{'label' = $($missingConfig.guid);} | ConvertTo-Json
+               $agentToken = ((Invoke-WebRequest -UseBasicParsing -Uri $tokenuri -Method POST -Headers $AuthToken -Body $body -ContentType application/json).Headers).'X-Object-ID'
+            }
+            else {
+               $agentToken = $($agent_tokens | ? {$_.label -eq $($missingConfig.guid)}).id
+            }
+            powershell.exe $($d.wD, $d.mR, $(($servers | ? {$_.guid -eq $missingConfig}).environmentName, ".ps1" -join '') -join '\') -Node $(($servers | ? {$_.guid -eq $missingConfig}).serverName) -ObjectGuid $(($servers | ? {$_.guid -eq $missingConfig}).guid) -MonitoringID $(($servers | ? {$_.guid -eq $missingConfig}).guid) -MonitoringToken $agentToken
          }
          catch {
             if($Logging) {
