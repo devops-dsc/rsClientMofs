@@ -81,7 +81,7 @@ Function Test-TargetResource {
             return $false
          }
          if(($entities | ? $_.label -eq $server.serverName).agent_id -ne $server.guid) {
-            if(($entities | ? $_.label -eq $server.serverName).agent_id) {
+            if(($entities | ? $_.label -eq $server.serverName).agent_id -eq $null) {
                Write-EventLog -LogName DevOps -Source $logSource -EntryType Warning -EventId 1000 -Message "No Entity found for this server `n $($_.Exception.Message)"
             }
             return $false 
@@ -255,7 +255,7 @@ Function Set-TargetResource {
          if(!(Test-Path -Path $("C:\Program Files\WindowsPowerShell\DscService\Configuration", $($server.guid, ".mof.checksum" -join '') -join '\'))) {
             $missingConfigs += $($server.guid)
          }
-         if(($entities | ? $_.label -eq $server.serverName).agent_id -ne $null -and ($entities | ? $_.label -eq $server.serverName).agent_id -ne $server.guid) {
+         if((($entities | ? $_.label -eq $server.serverName).agent_id -ne $null) -and (($entities | ? $_.label -eq $server.serverName).agent_id -ne $server.guid)) {
             try {
                $entityID = ($entities | ? label -eq $server.serverName).id
                $entityUri = $($entityuri, $entityID -join '/')
