@@ -255,7 +255,7 @@ Function Set-TargetResource {
          if(!(Test-Path -Path $("C:\Program Files\WindowsPowerShell\DscService\Configuration", $($server.guid, ".mof.checksum" -join '') -join '\'))) {
             $missingConfigs += $($server.guid)
          }
-         if((($entities | ? $_.label -eq $server.serverName).agent_id -ne $null) -and (($entities | ? $_.label -eq $server.serverName).agent_id -ne $server.guid)) {
+         if((($entities | ? label -eq $($server.serverName).agent_id) -ne $null) -and (($entities | ? label -eq $($server.serverName).agent_id) -ne $server.guid)) {
             try {
                $entityID = ($entities | ? label -eq $server.serverName).id
                $entityUri = $($entityuri, $entityID -join '/')
