@@ -27,8 +27,16 @@ Function Test-TargetResource {
       }
    }
    $AuthToken = @{"X-Auth-Token"=($catalog.access.token.id)}
+   $monitoruri = (($catalog.access.serviceCatalog | Where-Object Name -Match "cloudMonitoring").endpoints).publicURL
+   $tokenuri = ($monitoruri, "agent_tokens" -join '/')
    $environmentGuids = (((Get-Content -Path $($d.wD, $d.mR, "rsEnvironments.ps1" -join '\')) -match "environmentGuid") | % {($_.split("=")[1] -replace '"', "").trim()})
-   $servers = @()
+   $entityuri = ($monitoruri, "entities" -join '/')
+   try {
+      $entities = (Invoke-RestMethod -Uri $entityuri -Method GET -Headers $authToken).values
+   }
+   catch {
+      Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to retreive Monitoring Entities `n $($_.Exception.Message)"
+   }
    foreach($environmentGuid in $environmentGuids) {
       try {
          $servers += (((Invoke-RestMethod -Uri $("https://prefs.api.rackspacecloud.com/v1/WinDevOps", $environmentGuid -join '/') -Method GET -Headers $AuthToken -ContentType application/json).servers).servers)
@@ -72,6 +80,9 @@ Function Test-TargetResource {
          if(!(Test-Path -Path $("C:\Program Files\WindowsPowerShell\DscService\Configuration", $($server.guid, ".mof.checksum" -join '') -join '\'))) {
             return $false
          }
+         if(($entities | ? $_.label -eq $server.serverName).agent_id -ne $server.guid) {
+            return $false
+         }
       }
    }
    return $true
@@ -96,6 +107,13 @@ Function Set-TargetResource {
    $monitoruri = (($catalog.access.serviceCatalog | Where-Object Name -Match "cloudMonitoring").endpoints).publicURL
    $tokenuri = ($monitoruri, "agent_tokens" -join '/')
    $environmentGuids = (((Get-Content -Path $($d.wD, $d.mR, "rsEnvironments.ps1" -join '\')) -match "environmentGuid") | % {($_.split("=")[1] -replace '"', "").trim()})
+   $entityuri = ($monitoruri, "entities" -join '/')
+   try {
+      $entities = (Invoke-RestMethod -Uri $entityuri -Method GET -Headers $authToken).values
+   }
+   catch {
+      Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to retreive Monitoring Entities `n $($_.Exception.Message)"
+   }
    $servers = @()
    foreach($environmentGuid in $environmentGuids) {
       try {
@@ -233,6 +251,17 @@ Function Set-TargetResource {
          }
          if(!(Test-Path -Path $("C:\Program Files\WindowsPowerShell\DscService\Configuration", $($server.guid, ".mof.checksum" -join '') -join '\'))) {
             $missingConfigs += $($server.guid)
+         }
+         if(($entities | ? $_.label -eq $server.serverName).agent_id -ne $server.guid) {
+            try {
+               $entityID = ($entities | ? label -eq $server.serverName).id
+               $entityUri = $($entityuri, $entityID -join '/')
+               $entityBody = @{"agent_id" = $server.guid} | ConvertTo-Json
+               Invoke-RestMethod -Uri $entityuri -Method Put -Headers $AuthToken -Body $entityBody -ContentType application/json
+            }
+            catch {
+               Write-EventLog -LogName DevOps -Source $logSource -EntryType Error -EventId 1002 -Message "Failed to update Entity agent_id `n $($_.Exception.Message)"
+            }
          }
       }  
    }
