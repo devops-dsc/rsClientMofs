@@ -51,7 +51,7 @@ Function Test-TargetResource {
       if($($server.serverName)) {
          if(($entities | ? label -eq $($server.serverName).agent_id) -ne $($server.guid)) {
             if(($entities | ? label -eq $($server.serverName)) -eq $null) {
-               Write-EventLog -LogName DevOps -Source $logSource -EntryType Warning -EventId 1000 -Message "No Entity found for this server `n $($_.Exception.Message)"
+               Write-EventLog -LogName DevOps -Source $logSource -EntryType Warning -EventId 1000 -Message "No Monitor Entity found for this server `n $($_.Exception.Message)"
             }
             return $false 
          }
