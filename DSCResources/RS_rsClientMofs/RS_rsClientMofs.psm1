@@ -31,6 +31,7 @@ Function Test-TargetResource {
    $tokenuri = ($monitoruri, "agent_tokens" -join '/')
    $environmentGuids = (((Get-Content -Path $($d.wD, $d.mR, "rsEnvironments.ps1" -join '\')) -match "environmentGuid") | % {($_.split("=")[1] -replace '"', "").trim()})
    $entityuri = ($monitoruri, "entities" -join '/')
+   $servers = @()
    try {
       $entities = (Invoke-RestMethod -Uri $entityuri -Method GET -Headers $authToken).values
    }
