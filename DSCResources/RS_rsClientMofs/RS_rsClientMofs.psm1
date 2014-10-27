@@ -209,7 +209,7 @@ Function Set-TargetResource {
                      else {
                         $agentToken = $($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id
                      }
-                     powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken $agentToken
+                     Invoke-Expression "$($d.wD, $d.mR, $($environment, '.ps1' -join '') -join '\') -Node $($environmentServer.servername), -ObjectGuid $($environmentServer.guid), -MonitoringID $($environmentServer.guid), -MonitoringToken $agentToken"
                   }
                   catch {
                      if($Logging) {
@@ -240,7 +240,7 @@ Function Set-TargetResource {
                else {
                   $agentToken = $($agent_tokens | ? {$_.label -eq $($environmentServer.guid)}).id
                }
-               powershell.exe $($d.wD, $d.mR, $($environment, ".ps1" -join '') -join '\') -Node $($environmentServer.servername) -ObjectGuid $($environmentServer.guid) -MonitoringID $($environmentServer.guid) -MonitoringToken $agentToken
+               Invoke-Expression "$($d.wD, $d.mR, $($environment, '.ps1' -join '') -join '\') -Node $($environmentServer.servername) -ObjectGuid $($environmentServer.guid) -MonitoringID $($environmentServer.guid) -MonitoringToken $agentToken"
             }
             catch {
                if($Logging) {
@@ -293,7 +293,7 @@ Function Set-TargetResource {
             else {
                $agentToken = $($agent_tokens | ? {$_.label -eq $($missingConfig.guid)}).id
             }
-            powershell.exe $($d.wD, $d.mR, $(($servers | ? {$_.guid -eq $missingConfig}).environmentName, ".ps1" -join '') -join '\') -Node $(($servers | ? {$_.guid -eq $missingConfig}).serverName) -ObjectGuid $(($servers | ? {$_.guid -eq $missingConfig}).guid) -MonitoringID $(($servers | ? {$_.guid -eq $missingConfig}).guid) -MonitoringToken $agentToken
+            Invoke-Expression "$($d.wD, $d.mR, $(($servers | ? {$_.guid -eq $missingConfig}).environmentName, '.ps1' -join '') -join '\') -Node $(($servers | ? {$_.guid -eq $missingConfig}).serverName) -ObjectGuid $(($servers | ? {$_.guid -eq $missingConfig}).guid) -MonitoringID $(($servers | ? {$_.guid -eq $missingConfig}).guid) -MonitoringToken $agentToken"
          }
          catch {
             if($Logging) {
